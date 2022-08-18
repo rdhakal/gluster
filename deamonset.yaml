@@ -16,12 +16,16 @@ spec:
       containers:
         - name: gluster-ssl
           image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - echo starting;
+              echo "check inint log";
+              sleep 9999;
+      initContainers:
+        - name: gluster-init-container
+          image: busybox
           command: ["/bin/sh","/mnt/entrypoint/entrypoint.sh"]
-          #- sleep 5
-          #- sh /mnt/entrypoint/entrypoint.sh
           volumeMounts:
-         # - mountPath: /usr/local/apache2/htdocs
-         #   name: gv0
           - name: gluster-crt
             mountPath: /mnt/crt
           - name: etc-ssl
@@ -32,20 +36,23 @@ spec:
           - name: secure-access
             mountPath: /var/lib/glusterd/
       volumes:
-      #- name: gv0 
-      #  glusterfs:
-      #    endpoints: glusterfs-cluster
-      #    path: gv0/site1
-      - name:  gluster-crt
-        configMap:
-           name: gluster-cm
-      - name: etc-ssl
-        hostPath:
-           path: /etc/ssl
-      - name: secure-access
-        hostPath:
-           path: /var/lib/glusterd/
-      - name: entrypoint
-        configMap:
-           name: gluster-entrypoint-cm
-
+        - name:  gluster-crt
+          secret:
+            secretName: gluster-crt
+            items:
+            - key: glusterfs.pem
+              path: glusterfs.pem
+            - key: glusterfs.key
+              path: glusterfs.key
+            - key: glusterfs.ca
+              path: glusterfs.ca
+            defaultMode: 0600
+        - name: etc-ssl
+          hostPath:
+            path: /etc/ssl
+        - name: secure-access
+          hostPath:
+            path: /var/lib/glusterd/
+        - name: entrypoint
+          configMap:
+            name: gluster-entrypoint-cm
