@@ -16,14 +16,28 @@ spec:
       containers:
         - name: gluster-ssl
           image: busybox
+          resources:
+           limits:
+             memory: 20Mi
+             cpu: 0.5m
+           requests:
+             memory: 5Mi
+             cpu: 0.5m
           command: ["/bin/sh", "-c"]
           args:
-            - echo starting;
+            - useradd  user;
               echo "check inint log";
-              sleep 9999;
+              sleep infinity;
       initContainers:
         - name: gluster-init-container
           image: busybox
+          resources:
+           limits:
+             memory: 50Mi
+             cpu: 5m
+           requests:
+             memory: 20Mi
+             cpu: 2m
           command: ["/bin/sh","/mnt/entrypoint/entrypoint.sh"]
           volumeMounts:
           - name: gluster-crt
